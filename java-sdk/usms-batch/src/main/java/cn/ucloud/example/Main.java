@@ -68,12 +68,14 @@ class SendBatchUSMSMessageResult extends BaseResponseResult {
 
 public class Main {
     public static void main(String[] args) {
-        USMSClient client = new DefaultUSMSClient(new USMSConfig(
+        USMSConfig config = new USMSConfig(
                 new Account(
                         System.getenv("UCLOUD_PRIVATE_KEY"),
                         System.getenv("UCLOUD_PUBLIC_KEY")
                 )
-        ));
+        );
+        config.setApiServerAddr("https://api.sms.ucloud.cn")
+        USMSClient client = new DefaultUSMSClient(config);
 
         SendBatchUSMSMessageParam param = new SendBatchUSMSMessageParam(
                 System.getenv("UCLOUD_PROJECT_ID"),
