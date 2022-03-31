@@ -1,5 +1,7 @@
 package cn.ucloud.example;
 
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.validation.constraints.NotEmpty;
 
@@ -65,7 +67,6 @@ class SendBatchUSMSMessageResult extends BaseResponseResult {
     }
 }
 
-
 public class Main {
     public static void main(String[] args) {
         USMSConfig config = new USMSConfig(
@@ -74,12 +75,20 @@ public class Main {
                         System.getenv("UCLOUD_PUBLIC_KEY")
                 )
         );
-        config.setApiServerAddr("https://api.sms.ucloud.cn")
+        config.setApiServerAddr("https://api.sms.ucloud.cn");
         USMSClient client = new DefaultUSMSClient(config);
 
         SendBatchUSMSMessageParam param = new SendBatchUSMSMessageParam(
                 System.getenv("UCLOUD_PROJECT_ID"),
-                "...."
+                Base64.getEncoder().encodeToString(
+                        String.format(
+                                "[{\"TemplateId\": \"%s\", \"SigContent\": \"%s\", \"Target\": [{\"TemplateParams\": [\"%s\"], \"Phone\": \"%s\"} ] } ] ",
+                                System.getenv("UCLOUD_USMS_TEMPLATE_ID"),
+                                System.getenv("UCLOUD_USMS_SIG_CONTENT"),
+                                System.getenv("UCLOUD_USMS_TEMPLATE_PARAM"),
+                                System.getenv("UCLOUD_USMS_PHONE_NUMBER")
+                        ).getBytes(StandardCharsets.UTF_8)
+                )
         );
 
         SendBatchUSMSMessageResult result = null;
