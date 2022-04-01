@@ -1,4 +1,4 @@
-# UVMS Go Example
+# UVMS Python Example
 
 ## Quickstart
 
