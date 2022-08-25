@@ -14,6 +14,6 @@ export UCLOUD_UVMS_PHONE_NUMBER=188********
 Run:
 
 ```
-python3 ./main.go
+python3 main.py
 ```
 
