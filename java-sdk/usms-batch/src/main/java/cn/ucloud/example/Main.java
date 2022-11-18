@@ -1,102 +1,47 @@
 package cn.ucloud.example;
 
-import java.util.Base64;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import javax.validation.constraints.NotEmpty;
-
-import com.google.gson.annotations.SerializedName;
-
-import cn.ucloud.common.pojo.Account;
-import cn.ucloud.usms.client.DefaultUSMSClient;
+import cn.ucloud.common.config.Config;
+import cn.ucloud.common.credential.Credential;
 import cn.ucloud.usms.client.USMSClient;
-import cn.ucloud.usms.pojo.USMSConfig;
-import cn.ucloud.common.annotation.UcloudParam;
-import cn.ucloud.common.pojo.BaseRequestParam;
-import cn.ucloud.common.pojo.BaseResponseResult;
+import cn.ucloud.usms.models.SendBatchUSMSMessageRequest;
+import cn.ucloud.usms.models.SendBatchUSMSMessageResponse;
 
-
-class SendBatchUSMSMessageParam extends BaseRequestParam {
-    @UcloudParam("ProjectId")
-    private String projectId;
-
-    @UcloudParam("TaskContent")
-    private String taskContent;
-
-    public SendBatchUSMSMessageParam(
-            @NotEmpty(message = "projectId can not be empty") String projectId,
-            @NotEmpty(message = "taskContent can not be empty") String taskContent
-    ) {
-        super("SendBatchUSMSMessage");
-        this.projectId = projectId;
-        this.taskContent = taskContent;
-    }
-}
-
-
-class SendBatchUSMSMessageResult extends BaseResponseResult {
-    @SerializedName("FailContent")
-    private List<BatchInfo> failContent;
-
-    public class BatchInfo {
-        @SerializedName("TemplateId")
-        private String templateId;
-
-        @SerializedName("SigContent")
-        private String sigContent;
-
-        @SerializedName("Target")
-        private List<FailPhoneDetail> target;
-    }
-
-    public class FailPhoneDetail {
-        @SerializedName("TemplateParams")
-        private List<String> templateParams;
-
-        @SerializedName("Phone")
-        private String phone;
-
-        @SerializedName("ExtendCode")
-        private String extendCode;
-
-        @SerializedName("UserId")
-        private String userId;
-
-        @SerializedName("FailureDetails")
-        private String failureDetails;
-    }
-}
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        USMSConfig config = new USMSConfig(
-                new Account(
-                        System.getenv("UCLOUD_PRIVATE_KEY"),
-                        System.getenv("UCLOUD_PUBLIC_KEY")
-                )
-        );
-        config.setApiServerAddr("https://api.sms.ucloud.cn");
-        USMSClient client = new DefaultUSMSClient(config);
+        Config config = new Config();
 
-        SendBatchUSMSMessageParam param = new SendBatchUSMSMessageParam(
-                System.getenv("UCLOUD_PROJECT_ID"),
-                Base64.getEncoder().encodeToString(
-                        String.format(
-                                "[{\"TemplateId\": \"%s\", \"SigContent\": \"%s\", \"Target\": [{\"TemplateParams\": [\"%s\"], \"Phone\": \"%s\"} ] } ] ",
-                                System.getenv("UCLOUD_USMS_TEMPLATE_ID"),
-                                System.getenv("UCLOUD_USMS_SIG_CONTENT"),
-                                System.getenv("UCLOUD_USMS_TEMPLATE_PARAM"),
-                                System.getenv("UCLOUD_USMS_PHONE_NUMBER")
-                        ).getBytes(StandardCharsets.UTF_8)
-                )
+        Credential credential = new Credential(
+                "...",
+                "..."
         );
 
-        SendBatchUSMSMessageResult result = null;
+        USMSClient client = new USMSClient(config, credential);
+
+        List<String> phoneNumbers = new ArrayList<>();
+        phoneNumbers.add("...");
+        phoneNumbers.add("...");
+
+        SendBatchUSMSMessageRequest req = new SendBatchUSMSMessageRequest();
+        // 批量发送内容，该参数是json数组的base64编码结果。发送内容json数组中，每个“模板+签名”组合作为一个子项，每个子项内支持多个号码，
+        // 示例： 发送内容json数组（base64编码前）：
+        // [{"TemplateId": "UTA20212831C85C", "SigContent": "UCloud", "Target": [{"TemplateParams": ["123456"], "Phone": "18500000123", "ExtendCode": "123", "UserId": "456"} ] } ] 。
+        // json数组中各参数的定义："TemplateId":模板ID，"SigContent"短信签名内容，
+        // "Target"具体到号码粒度的发送内容。
+        // "Target"中的具体字段有：
+        // "TemplateParams"实际发送的模板参数（若使用的是无参数模板，该参数不能传值），"Phone"手机号码, "ExtendCode"短信扩展码, "UserId"自定义业务标识ID。其中必传参数为"TemplateId", "SigContent", "Target"（"Target"中必传参数为"Phone"）。
+        // 实际调用本接口时TaskContent传值（发送内容base64编码后）为：W3siVGVtcGxhdGVJZCI6ICJVVEEyMDIxMjgzMUM4NUMiLCAiU2lnQ29udGVudCI6ICJVQ2xvdWQiLCAiVGFyZ2V0IjogW3siVGVtcGxhdGVQYXJhbXMiOiBbIjEyMzQ1NiJdLCAiUGhvbmUiOiAiMTg1MDAwMDAxMjMiLCAiRXh0ZW5kQ29kZSI6ICIxMjMiLCAiVXNlcklkIjogIjQ1NiJ9IF0gfSBdIA==
+        req.setTaskContent("...");
+        req.setProjectId("...");
+
+        SendBatchUSMSMessageResponse resp = null;
         try {
-            result = (SendBatchUSMSMessageResult) client.doAction(param, SendBatchUSMSMessageResult.class);
+            resp = client.sendBatchUSMSMessage(req);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(result);
+        System.out.println(resp);
     }
 }
