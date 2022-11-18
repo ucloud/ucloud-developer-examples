@@ -1,91 +1,45 @@
 package cn.ucloud.example;
 
-import java.util.List;
-import javax.validation.constraints.NotEmpty;
-
-import com.google.gson.annotations.SerializedName;
-
-import cn.ucloud.common.pojo.Account;
-import cn.ucloud.usms.client.DefaultUSMSClient;
+import cn.ucloud.common.config.Config;
+import cn.ucloud.common.credential.Credential;
 import cn.ucloud.usms.client.USMSClient;
-import cn.ucloud.usms.pojo.USMSConfig;
-import cn.ucloud.common.annotation.UcloudParam;
-import cn.ucloud.common.pojo.BaseRequestParam;
-import cn.ucloud.common.pojo.BaseResponseResult;
+import cn.ucloud.usms.models.SendUSMSMessageRequest;
+import cn.ucloud.usms.models.SendUSMSMessageResponse;
 
-
-class SendBatchUSMSMessageParam extends BaseRequestParam {
-    @UcloudParam("ProjectId")
-    private String projectId;
-
-    @UcloudParam("TaskContent")
-    private String taskContent;
-
-    public SendBatchUSMSMessageParam(
-            @NotEmpty(message = "projectId can not be empty") String projectId,
-            @NotEmpty(message = "taskContent can not be empty") String taskContent
-    ) {
-        super("SendBatchUSMSMessage");
-        this.projectId = projectId;
-        this.taskContent = taskContent;
-    }
-}
-
-
-class SendBatchUSMSMessageResult extends BaseResponseResult {
-    @SerializedName("FailContent")
-    private List<BatchInfo> failContent;
-
-    public class BatchInfo {
-        @SerializedName("TemplateId")
-        private String templateId;
-
-        @SerializedName("SigContent")
-        private String sigContent;
-
-        @SerializedName("Target")
-        private List<FailPhoneDetail> target;
-    }
-
-    public class FailPhoneDetail {
-        @SerializedName("TemplateParams")
-        private List<String> templateParams;
-
-        @SerializedName("Phone")
-        private String phone;
-
-        @SerializedName("ExtendCode")
-        private String extendCode;
-
-        @SerializedName("UserId")
-        private String userId;
-
-        @SerializedName("FailureDetails")
-        private String failureDetails;
-    }
-}
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        USMSClient client = new DefaultUSMSClient(new USMSConfig(
-                new Account(
-                        System.getenv("UCLOUD_PRIVATE_KEY"),
-                        System.getenv("UCLOUD_PUBLIC_KEY")
-                )
-        ));
+        Config config = new Config();
 
-        SendBatchUSMSMessageParam param = new SendBatchUSMSMessageParam(
-                System.getenv("UCLOUD_PROJECT_ID"),
-                "...."
+        Credential credential = new Credential(
+                "...",
+                "..."
         );
 
-        SendBatchUSMSMessageResult result = null;
+        USMSClient client = new USMSClient(config, credential);
+
+        List<String> phoneNumbers = new ArrayList<>();
+        phoneNumbers.add("...");
+        phoneNumbers.add("...");
+
+        SendUSMSMessageRequest req = new SendUSMSMessageRequest();
+        req.setSigContent("...");
+        req.setProjectId("...");
+        req.setTemplateId("template-id");
+        req.setPhoneNumbers(phoneNumbers);
+
+        List<String> templateParams = new ArrayList<>();
+        templateParams.add("424242");
+        req.setTemplateParams(templateParams);
+
+        SendUSMSMessageResponse resp = null;
         try {
-            result = (SendBatchUSMSMessageResult) client.doAction(param, SendBatchUSMSMessageResult.class);
+            resp = client.sendUSMSMessage(req);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(result);
+        System.out.println(resp);
     }
 }
