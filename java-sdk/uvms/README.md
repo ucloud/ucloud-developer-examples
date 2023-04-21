@@ -22,7 +22,7 @@
         <dependency>
             <groupId>cn.ucloud</groupId>
             <artifactId>ucloud-sdk-java-uvms</artifactId>
-            <version>1.0.0-release</version>
+            <version>1.2.4-release</version>
         </dependency>
     </dependencies>
 
@@ -43,7 +43,6 @@ import cn.ucloud.uvms.models.SendUVMSMessageResponse;
 public class Main {
     public static void main(String []args) {
         Config config = new Config();
-        config.setRegion("cn-bj2");
 
         String publicKey = "...";
         String privateKey = "...";
@@ -60,6 +59,7 @@ public class Main {
         param.setProjectId("...");
         param.setCalledNumber("...");
         param.setFromNumber("...");
+        param.setTemplateId("...");
 
         try {
             SendUVMSMessageResponse result = client.sendUVMSMessage(param);
