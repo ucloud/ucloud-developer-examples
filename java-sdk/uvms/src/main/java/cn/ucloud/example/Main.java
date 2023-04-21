@@ -9,7 +9,6 @@ import cn.ucloud.uvms.models.SendUVMSMessageResponse;
 public class Main {
     public static void main(String []args) {
         Config config = new Config();
-        config.setRegion("cn-bj2");
 
         String publicKey = "...";
         String privateKey = "...";
@@ -26,6 +25,7 @@ public class Main {
         param.setProjectId("...");
         param.setCalledNumber("...");
         param.setFromNumber("...");
+        param.setTemplateId("...");
 
         try {
             SendUVMSMessageResponse result = client.sendUVMSMessage(param);
