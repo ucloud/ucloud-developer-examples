@@ -11,8 +11,6 @@ client = Client({
 
 try:
     resp = client.uvms().send_uvms_message({
-        'Region': 'cn-bj2',
-        'Zone': 'cn-bj2-05',
         'CalledNumber': os.getenv("UCLOUD_UVMS_PHONE_NUMBER"),
         'TemplateId': os.getenv("UCLOUD_UVMS_TEMPLATE_ID"),
         'TemplateParams': [os.getenv("UCLOUD_UVMS_TEMPLATE_PARAM")],
